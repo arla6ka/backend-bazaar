@@ -1,14 +1,13 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
 
-const launchOptions = {
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-};
-
 const scrapeProductPageAlfa = async (url, query) => {
   console.log(`Scraping Alfa product page: ${url}`);
-  const browser = await puppeteer.launch(launchOptions);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
+  });
   const page = await browser.newPage();
 
   try {
@@ -19,8 +18,8 @@ const scrapeProductPageAlfa = async (url, query) => {
       const price = document.querySelector('.price .num')?.innerText.trim();
       const imageSrc = document.querySelector('.gallery-holder img')?.src;
       const description = document.querySelector('.tab-pane#description')?.innerText.trim();
-      const specifications = ''; // Alfa не предоставляет детальных спецификаций на странице товара
-      const reviews = ''; // Alfa не предоставляет отзывы на странице товара
+      const specifications = '';
+      const reviews = '';
 
       return { title, price, description, specifications, reviews, imageSrc };
     });
@@ -37,7 +36,11 @@ const scrapeProductPageAlfa = async (url, query) => {
 
 const scrapeAlfa = async (query) => {
   console.log(`Scraping Alfa for query: ${query}`);
-  const browser = await puppeteer.launch(launchOptions);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
+  });
   const page = await browser.newPage();
 
   try {
@@ -46,9 +49,9 @@ const scrapeAlfa = async (query) => {
     const productLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('.product-item .title a'))
         .map(link => link.href)
-        .filter(link => !link.includes('/wishlist/add')); // Фильтруем ссылки на wishlist
+        .filter(link => !link.includes('/wishlist/add'));
 
-      return [...new Set(links)].slice(0, 12); // Используем Set для хранения уникальных ссылок и берем только первые 12
+      return [...new Set(links)].slice(0, 12);
     });
 
     console.log(`Found ${productLinks.length} product links on Alfa:`, productLinks);

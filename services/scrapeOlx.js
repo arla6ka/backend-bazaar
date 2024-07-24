@@ -1,14 +1,13 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
 
-const launchOptions = {
-  headless: true,
-  args: ['--no-sandbox', '--disable-setuid-sandbox'],
-};
-
 const scrapeProductPageOlx = async (url, query) => {
   console.log(`Scraping OLX product page: ${url}`);
-  const browser = await puppeteer.launch(launchOptions);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
+  });
   const page = await browser.newPage();
 
   try {
@@ -24,8 +23,8 @@ const scrapeProductPageOlx = async (url, query) => {
       const price = priceElement ? priceElement.innerText.trim() : null;
       const imageSrc = imageSrcElement ? imageSrcElement.src : null;
       const description = descriptionElement ? descriptionElement.innerText.trim() : null;
-      const specifications = ''; // OLX не предоставляет детальных спецификаций на странице товара
-      const reviews = ''; // OLX не предоставляет отзывы на странице товара
+      const specifications = '';
+      const reviews = '';
 
       return { title, price, description, imageSrc, specifications, reviews };
     });
@@ -42,7 +41,11 @@ const scrapeProductPageOlx = async (url, query) => {
 
 const scrapeOlx = async (query) => {
   console.log(`Scraping OLX for query: ${query}`);
-  const browser = await puppeteer.launch(launchOptions);
+  const browser = await puppeteer.launch({
+    headless: true,
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
+  });
   const page = await browser.newPage();
 
   try {
@@ -50,7 +53,7 @@ const scrapeOlx = async (query) => {
 
     const productLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('a.css-z3gu2d')).map(link => link.href);
-      return [...new Set(links)].slice(0, 12); // Используем Set для хранения уникальных ссылок и берем только первые 12
+      return [...new Set(links)].slice(0, 12);
     });
 
     console.log(`Found ${productLinks.length} product links on OLX:`, productLinks);
