@@ -6,7 +6,7 @@ const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
 
 const formatQuery = async (query) => {
   console.log(`Formatting query: ${query}`);
-  const prompt = `Provide a simple, standardized search term for the e-commerce query: "${query}". Return only the search term.`;
+  const prompt = `Provide a simple, standardized search term for the e-commerce query: "${query}". Return only the search term. If the query has an abstract query, for example, "I want an office mouse", then you must format it yourself, choose a brand (if necessary).`;
 
   const result = await model.generateContent(prompt);
   const response = await result.response;
@@ -25,10 +25,12 @@ const formatQuery = async (query) => {
   return formattedQuery;
 };
 
-const analyzeProductsBatch = async (products) => {
+const analyzeProductsBatch = async (products, query) => {
   const batchSize = 12;
   for (let i = 0; i < products.length; i += batchSize) {
-    const batch = products.slice(i, i + batchSize);
+    const batch = products.slice(i, i + batchSize).filter(product => product.score === 0);
+
+    if (batch.length === 0) continue;
 
     const batchPrompt = batch.map((product, index) => {
       const { title, price, description, specifications, reviews } = product;
@@ -43,8 +45,9 @@ const analyzeProductsBatch = async (products) => {
     }).join('\n\n');
 
     const prompt = `
-      Imagine that you are the best product evaluator in the world. Evaluate the following products and give each of them a score out of 1000 based on their price, description, specifications, and reviews. Provide just the scores, one for each product, without any additional comments or suggestions. Be concise and to the point. Your goal to suggest most advantageous in price, appropriate in specifications and descriptions. Format the response as "Product 1: score, Product 2: score, ..., Product ${batch.length}: score".
-
+      User query: "${query}"
+      Imagine that you are the best product evaluator in the world. Evaluate the following products and give each of them a score out of 1000 based on their price, description, specifications, and reviews. Provide just the scores, one for each product, without any additional comments or suggestions. Be concise and to the point. Your goal to suggest most advantageous in price, appropriate in specifications and descriptions. Format the response as "Product 1: score, Product 2: score, ..., Product ${batch.length}: score. If a users prompt is not related to product that you were given, give it a zero score".
+      
       ${batchPrompt}
     `;
 

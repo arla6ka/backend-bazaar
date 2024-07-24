@@ -6,6 +6,7 @@ const cors = require('cors');
 const { scrapeKaspi } = require('./services/scrapeKaspi');
 const { scrapeWildberries } = require('./services/scrapeWildberries');
 const { scrapeAlfa } = require('./services/scrapeAlfa');
+const { scrapeOlx } = require('./services/scrapeOlx');
 const { formatQuery, getTopProducts, analyzeProductsBatch } = require('./services/analyzeService');
 const Product = require('./models/Product');
 
@@ -24,46 +25,48 @@ mongoose.connect(process.env.MONGODB_URI, {
 });
 
 app.post('/api/search', async (req, res) => {
-  const { query } = req.body;
+  const { query, marketplace } = req.body;
 
   try {
     const formattedQuery = await formatQuery(query);
-
     console.log(`Searching for products with query: ${formattedQuery}`);
-    const regex = new RegExp(formattedQuery.split(' ').join('|'), 'i'); // Split query into words and create regex
 
-    let products = await Product.find({
-      $or: [
-        { title: regex },
-        { description: regex },
-        { specifications: regex },
-        { reviews: regex }
-      ]
-    });
+    const keywords = formattedQuery.split(' ');
+
+    let searchCriteria = {
+      $or: keywords.map(keyword => ({
+        $or: [
+          { title: { $regex: keyword, $options: 'i' } },
+          { description: { $regex: keyword, $options: 'i' } },
+          { specifications: { $regex: keyword, $options: 'i' } },
+          { reviews: { $regex: keyword, $options: 'i' } }
+        ]
+      }))
+    };
+
+    if (marketplace) {
+      searchCriteria.source = marketplace;
+    }
+
+    let products = await Product.find({ ...searchCriteria, query: formattedQuery });
     console.log(`Found ${products.length} products in the database`);
 
     if (products.length === 0) {
       console.log('No products found in database. Scraping new products...');
 
       await Promise.all([
+        scrapeOlx(formattedQuery),
+        scrapeKaspi(formattedQuery),
         scrapeAlfa(formattedQuery),
-        scrapeWildberries(formattedQuery),
-        scrapeKaspi(formattedQuery)
+        scrapeWildberries(formattedQuery)
       ]);
 
-      products = await Product.find({
-        $or: [
-          { title: regex },
-          { description: regex },
-          { specifications: regex },
-          { reviews: regex }
-        ]
-      });
+      products = await Product.find({ ...searchCriteria, query: formattedQuery });
       console.log(`Found ${products.length} products after scraping`);
     }
 
     if (products.length > 0) {
-      await analyzeProductsBatch(products);
+      await analyzeProductsBatch(products, query);
     }
 
     const topProducts = await getTopProducts(products);
@@ -71,6 +74,16 @@ app.post('/api/search', async (req, res) => {
   } catch (error) {
     console.error('Error during scraping:', error);
     res.status(500).json({ error: 'An error occurred while scraping data.' });
+  }
+});
+
+app.get('/api/popular', async (req, res) => {
+  try {
+    const popularProducts = await Product.find().limit(30);
+    res.json(popularProducts);
+  } catch (error) {
+    console.error('Error fetching popular products:', error);
+    res.status(500).json({ error: 'An error occurred while fetching popular products.' });
   }
 });
 
