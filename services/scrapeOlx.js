@@ -1,9 +1,14 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
 
+const launchOptions = {
+  headless: true,
+  args: ['--no-sandbox', '--disable-setuid-sandbox'],
+};
+
 const scrapeProductPageOlx = async (url, query) => {
   console.log(`Scraping OLX product page: ${url}`);
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch(launchOptions);
   const page = await browser.newPage();
 
   try {
@@ -37,7 +42,7 @@ const scrapeProductPageOlx = async (url, query) => {
 
 const scrapeOlx = async (query) => {
   console.log(`Scraping OLX for query: ${query}`);
-  const browser = await puppeteer.launch({ headless: true });
+  const browser = await puppeteer.launch(launchOptions);
   const page = await browser.newPage();
 
   try {
