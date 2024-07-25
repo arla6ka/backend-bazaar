@@ -24,6 +24,17 @@ mongoose.connect(process.env.MONGODB_URI, {
   console.error('Failed to connect to MongoDB', err);
 });
 
+// Content Security Policy
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'");
+  next();
+});
+
+// Root route
+app.get('/', (req, res) => {
+  res.send('API is running...');
+});
+
 app.post('/api/search', async (req, res) => {
   const { query, marketplace } = req.body;
 
@@ -41,14 +52,15 @@ app.post('/api/search', async (req, res) => {
           { specifications: { $regex: keyword, $options: 'i' } },
           { reviews: { $regex: keyword, $options: 'i' } }
         ]
-      }))
+      })),
+      query: formattedQuery
     };
 
     if (marketplace) {
       searchCriteria.source = marketplace;
     }
 
-    let products = await Product.find({ ...searchCriteria, query: formattedQuery });
+    let products = await Product.find(searchCriteria);
     console.log(`Found ${products.length} products in the database`);
 
     if (products.length === 0) {
@@ -61,7 +73,7 @@ app.post('/api/search', async (req, res) => {
         scrapeWildberries(formattedQuery)
       ]);
 
-      products = await Product.find({ ...searchCriteria, query: formattedQuery });
+      products = await Product.find(searchCriteria);
       console.log(`Found ${products.length} products after scraping`);
     }
 
