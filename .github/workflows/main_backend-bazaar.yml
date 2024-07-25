@@ -25,12 +25,13 @@ jobs:
         run: |
           npm install
           npm run build --if-present
+          npm run test --if-present
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
 
       - name: Upload artifact for deployment job
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: node-app
           path: release.zip
@@ -42,29 +43,29 @@ jobs:
       name: 'Production'
       url: ${{ steps.deploy-to-webapp.outputs.webapp-url }}
     permissions:
-      id-token: write
-      contents: read
+      id-token: write #This is required for requesting the JWT
 
     steps:
       - name: Download artifact from build job
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: node-app
 
       - name: Unzip artifact for deployment
         run: unzip release.zip
-
+      
       - name: Login to Azure
-        uses: azure/login@v1
+        uses: azure/login@v2
         with:
-          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_BEE0520FD0054CCE8055B65B99CE5EE4 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_15E57AEEF4BC4360AE624591651CB16E }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_4193EF0C9ADB4D05BD8B30C9D3253011 }}
+          client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D4F8E456517E4E9DA84A47D590F5A717 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2CFAEFEB1054EDE8E8A523931559234 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD0F63922F1747FC94B55EE08F714806 }}
 
       - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
-        uses: azure/webapps-deploy@v2
+        uses: azure/webapps-deploy@v3
         with:
           app-name: 'backend-bazaar'
           slot-name: 'Production'
           package: .
+          
