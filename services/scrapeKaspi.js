@@ -5,7 +5,8 @@ const scrapeProductPageKaspi = async (url, query) => {
   console.log(`Scraping Kaspi product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
@@ -50,7 +51,8 @@ const scrapeKaspi = async (query) => {
   console.log(`Scraping Kaspi for query: ${query}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
@@ -59,7 +61,7 @@ const scrapeKaspi = async (query) => {
 
     const productLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('.item-card__name-link')).map(link => link.href);
-      return [...new Set(links)].slice(0, 12);
+      return [...new Set(links)].slice(0, 12); // Используем Set для хранения уникальных ссылок и берем только первые 12
     });
 
     console.log(`Found ${productLinks.length} product links on Kaspi:`, productLinks);

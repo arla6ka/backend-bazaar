@@ -5,7 +5,8 @@ const scrapeProductPageAlfa = async (url, query) => {
   console.log(`Scraping Alfa product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
@@ -17,8 +18,8 @@ const scrapeProductPageAlfa = async (url, query) => {
       const price = document.querySelector('.price .num')?.innerText.trim();
       const imageSrc = document.querySelector('.gallery-holder img')?.src;
       const description = document.querySelector('.tab-pane#description')?.innerText.trim();
-      const specifications = '';
-      const reviews = '';
+      const specifications = ''; // Alfa не предоставляет детальных спецификаций на странице товара
+      const reviews = ''; // Alfa не предоставляет отзывы на странице товара
 
       return { title, price, description, specifications, reviews, imageSrc };
     });
@@ -37,7 +38,8 @@ const scrapeAlfa = async (query) => {
   console.log(`Scraping Alfa for query: ${query}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
@@ -47,9 +49,9 @@ const scrapeAlfa = async (query) => {
     const productLinks = await page.evaluate(() => {
       const links = Array.from(document.querySelectorAll('.product-item .title a'))
         .map(link => link.href)
-        .filter(link => !link.includes('/wishlist/add'));
+        .filter(link => !link.includes('/wishlist/add')); // Фильтруем ссылки на wishlist
 
-      return [...new Set(links)].slice(0, 12);
+      return [...new Set(links)].slice(0, 12); // Используем Set для хранения уникальных ссылок и берем только первые 12
     });
 
     console.log(`Found ${productLinks.length} product links on Alfa:`, productLinks);
