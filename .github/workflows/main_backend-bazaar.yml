@@ -54,7 +54,7 @@ jobs:
       - name: Install dependencies for Puppeteer
         run: |
           sudo apt-get update
-          sudo apt-get install -y chromium
+          sudo apt-get install -y chromium-browser
 
       - name: Login to Azure
         uses: azure/login@v1
