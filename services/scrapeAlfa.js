@@ -1,11 +1,13 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
-
+const puppeteerConfig = require('../puppeteer.config.js');
 const scrapeProductPageAlfa = async (url, query) => {
   console.log(`Scraping Alfa product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
+    ,
+    ...puppeteerConfig
   });
   const page = await browser.newPage();
 
@@ -38,6 +40,8 @@ const scrapeAlfa = async (query) => {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox']
+    ,
+    ...puppeteerConfig
   });
   const page = await browser.newPage();
 

@@ -1,11 +1,13 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
 
+const puppeteerConfig = require('../puppeteer.config.js');
 const scrapeProductPageWildberries = async (url, query) => {
   console.log(`Scraping Wildberries product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    ...puppeteerConfig
   });
   const page = await browser.newPage();
 
@@ -57,7 +59,8 @@ const scrapeWildberries = async (query) => {
   console.log(`Scraping Wildberries for query: ${query}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    ...puppeteerConfig
   });
   const page = await browser.newPage();
 
