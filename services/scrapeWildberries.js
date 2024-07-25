@@ -6,8 +6,7 @@ const scrapeProductPageWildberries = async (url, query) => {
   console.log(`Scraping Wildberries product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    ...puppeteerConfig
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
 
@@ -59,8 +58,7 @@ const scrapeWildberries = async (query) => {
   console.log(`Scraping Wildberries for query: ${query}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    ...puppeteerConfig
+    args: ['--no-sandbox', '--disable-setuid-sandbox']
   });
   const page = await browser.newPage();
 
