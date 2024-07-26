@@ -23,7 +23,7 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npx puppeteer browsers install
+          npx puppeteer install chrome
 
       - name: Set Chromium path
         run: echo "CHROMIUM_PATH=$(npx puppeteer browser executable-path chrome)" >> $GITHUB_ENV
