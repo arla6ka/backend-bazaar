@@ -1,7 +1,5 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
-
-const puppeteerConfig = require('../puppeteer.config.js');
 const scrapeProductPageOlx = async (url, query) => {
   console.log(`Scraping OLX product page: ${url}`);
   const browser = await puppeteer.launch({

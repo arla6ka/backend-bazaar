@@ -1,7 +1,5 @@
 const puppeteer = require('puppeteer');
 const Product = require('../models/Product');
-
-const puppeteerConfig = require('../puppeteer.config.js');
 const scrapeProductPageKaspi = async (url, query) => {
   console.log(`Scraping Kaspi product page: ${url}`);
   const browser = await puppeteer.launch({
