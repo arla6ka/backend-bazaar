@@ -20,14 +20,15 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Install dependencies for Puppeteer
-        run: |
-          apt-get update -y
-          apt-get install -y chromium-browser libnss3 libatk-bridge2.0-0 libx11-xcb1 libxcb-dri3-0 libxcomposite1 libxcursor1 libxi6 libxtst6 libxrandr2 libxss1 libglib2.0-0 libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
-          echo "CHROMIUM_PATH=$(which chromium-browser)" >> $GITHUB_ENV
+      - name: Install Puppeteer
+        run: npm install puppeteer
 
-      - name: Install Node.js dependencies
-        run: npm install
+      - name: Install Chromium for Puppeteer
+        run: |
+          npx puppeteer install
+
+      - name: Create environment variable for Chromium path
+        run: echo "CHROMIUM_PATH=$(npx puppeteer-executable-path)" >> $GITHUB_ENV
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
