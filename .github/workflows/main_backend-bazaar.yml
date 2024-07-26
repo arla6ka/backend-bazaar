@@ -1,4 +1,5 @@
-# .github/workflows/deploy.yml
+# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
+# More GitHub Actions for Azure: https://github.com/Azure/actions
 
 name: Build and deploy Node.js app to Azure Web App - backend-bazaar
 
@@ -22,11 +23,13 @@ jobs:
 
       - name: Install dependencies
         run: |
+          sudo apt-get update -y
+          sudo apt-get install -y libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
           npm install
-          npx puppeteer browsers install chrome
+          npx puppeteer install
 
-      - name: Set Chromium path
-        run: echo "CHROMIUM_PATH=$(npx puppeteer browsers executable-path chrome)" >> $GITHUB_ENV
+      - name: Set up CHROME_PATH environment variable
+        run: echo "CHROME_PATH=$(npx puppeteer browsers path chrome)" >> $GITHUB_ENV
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -56,31 +59,17 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Install dependencies for Puppeteer
-        run: |
-          sudo apt-get update -yy
-          sudo apt-get install -yy libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
           client-id: ${{ secrets.AZUREAPPSERVICE_CLIENTID_D4F8E456517E4E9DA84A47D590F5A717 }}
-          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2CFAEFEB1054EDE8E8A523931559234 }}
-          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD0F63922F1747FC94B55EE08F714806 }}
+          tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_FD0F63922F1747FC94B55EE08F714806 }}
+          subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_F2CFAEFEB1054EDE8E8A523931559234 }}
 
-      - name: Deploy to Azure Web App
+      - name: 'Deploy to Azure Web App'
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'backend-bazaar'
           slot-name: 'Production'
           package: .
-
-      - name: Check Chrome path
-        run: which chromium-browser || which google-chrome || echo "Chrome not found"
-
-      - name: Run the application
-        run: |
-          export CHROME_PATH=$(which chromium-browser || which google-chrome || echo $CHROMIUM_PATH)
-          echo "CHROME_PATH=$CHROME_PATH"
-          npm start
