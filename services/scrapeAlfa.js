@@ -6,7 +6,8 @@ const scrapeProductPageAlfa = async (url, query) => {
   console.log(`Scraping Alfa product page: ${url}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
@@ -38,7 +39,8 @@ const scrapeAlfa = async (query) => {
   console.log(`Scraping Alfa for query: ${query}`);
   const browser = await puppeteer.launch({
     headless: true,
-    args: ['--no-sandbox', '--disable-setuid-sandbox']
+    args: ['--no-sandbox', '--disable-setuid-sandbox'],
+    executablePath: '/usr/bin/chromium-browser'
   });
   const page = await browser.newPage();
 
