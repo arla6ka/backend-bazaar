@@ -20,15 +20,13 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: Install Puppeteer
-        run: npm install puppeteer
-
-      - name: Install Chromium for Puppeteer
+      - name: Install dependencies
         run: |
+          npm install
           npx puppeteer install
 
       - name: Create environment variable for Chromium path
-        run: echo "CHROMIUM_PATH=$(npx puppeteer-executable-path)" >> $GITHUB_ENV
+        run: echo "CHROMIUM_PATH=$(npx puppeteer executable-path)" >> $GITHUB_ENV
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
