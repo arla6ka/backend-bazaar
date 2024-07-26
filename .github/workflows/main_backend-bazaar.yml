@@ -1,5 +1,4 @@
-# Docs for the Azure Web Apps Deploy action: https://github.com/Azure/webapps-deploy
-# More GitHub Actions for Azure: https://github.com/Azure/actions
+# .github/workflows/deploy.yml
 
 name: Build and deploy Node.js app to Azure Web App - backend-bazaar
 
@@ -21,10 +20,14 @@ jobs:
         with:
           node-version: '18.x'
 
-      - name: npm install, build, and test
+      - name: Install dependencies for Puppeteer
         run: |
-          npm install
-          npm run build --if-present
+          apt-get update -y
+          apt-get install -y chromium-browser libnss3 libatk-bridge2.0-0 libx11-xcb1 libxcb-dri3-0 libxcomposite1 libxcursor1 libxi6 libxtst6 libxrandr2 libxss1 libglib2.0-0 libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
+          echo "CHROMIUM_PATH=$(which chromium-browser)" >> $GITHUB_ENV
+
+      - name: Install Node.js dependencies
+        run: npm install
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -54,18 +57,6 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
-      - name: Install dependencies for Puppeteer
-        run: |
-          sudo apt-get update -yy
-          sudo apt-get install -yy libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
-
-      - name: Install Chromium
-        run: |
-          sudo apt-get install -y chromium-browser
-          
-      - name: Set Chromium path
-        run: echo "export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser" >> $GITHUB_ENV
-
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -73,11 +64,10 @@ jobs:
           tenant-id: ${{ secrets.AZUREAPPSERVICE_TENANTID_F2CFAEFEB1054EDE8E8A523931559234 }}
           subscription-id: ${{ secrets.AZUREAPPSERVICE_SUBSCRIPTIONID_FD0F63922F1747FC94B55EE08F714806 }}
 
-      - name: 'Deploy to Azure Web App'
+      - name: Deploy to Azure Web App
         id: deploy-to-webapp
         uses: azure/webapps-deploy@v2
         with:
           app-name: 'backend-bazaar'
           slot-name: 'Production'
-          publish-profile: ${{ secrets.AZUREAPPSERVICE_PUBLISHPROFILE_F768DF10268F47F0BC7542C21043176C }}
           package: .
