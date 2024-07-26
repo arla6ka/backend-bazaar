@@ -23,10 +23,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npx puppeteer install chrome
+          npx puppeteer browsers install chrome
 
       - name: Set Chromium path
-        run: echo "CHROMIUM_PATH=$(npx puppeteer browser executable-path chrome)" >> $GITHUB_ENV
+        run: echo "CHROMIUM_PATH=$(npx puppeteer browsers executable-path chrome)" >> $GITHUB_ENV
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
@@ -56,6 +56,9 @@ jobs:
       - name: Unzip artifact for deployment
         run: unzip release.zip
 
+      - name: Install dependencies for Puppeteer
+        run: sudo apt-get update && sudo apt-get install -y libnss3-dev libatk-bridge2.0-0 libgtk-3-0
+
       - name: Login to Azure
         uses: azure/login@v1
         with:
@@ -70,3 +73,12 @@ jobs:
           app-name: 'backend-bazaar'
           slot-name: 'Production'
           package: .
+
+      - name: Check Chrome path
+        run: which chromium-browser || which google-chrome || echo "Chrome not found"
+
+      - name: Run the application
+        run: |
+          export CHROME_PATH=$(which chromium-browser || which google-chrome)
+          echo "CHROME_PATH=$CHROME_PATH"
+          npm start
