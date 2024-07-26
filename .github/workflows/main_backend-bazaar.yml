@@ -23,10 +23,10 @@ jobs:
       - name: Install dependencies
         run: |
           npm install
-          npx puppeteer install
+          npx puppeteer browsers install
 
-      - name: Create environment variable for Chromium path
-        run: echo "CHROMIUM_PATH=$(npx puppeteer executable-path)" >> $GITHUB_ENV
+      - name: Set Chromium path
+        run: echo "CHROMIUM_PATH=$(npx puppeteer browser executable-path chrome)" >> $GITHUB_ENV
 
       - name: Zip artifact for deployment
         run: zip release.zip ./* -r
