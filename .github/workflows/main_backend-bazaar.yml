@@ -62,6 +62,9 @@ jobs:
       - name: Install Chromium
         run: |
           sudo apt-get install -y chromium-browser
+          
+      - name: Set Chromium path
+        run: echo "export PUPPETEER_EXECUTABLE_PATH=/usr/bin/chromium-browser" >> $GITHUB_ENV
 
       - name: Login to Azure
         uses: azure/login@v1
