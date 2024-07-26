@@ -57,7 +57,9 @@ jobs:
         run: unzip release.zip
 
       - name: Install dependencies for Puppeteer
-        run: sudo apt-get update && sudo apt-get install -y libnss3-dev libatk-bridge2.0-0 libgtk-3-0
+        run: |
+          sudo apt-get update -yy
+          sudo apt-get install -yy libnss3-dev libgdk-pixbuf2.0-dev libgtk-3-dev libxss-dev libasound2
 
       - name: Login to Azure
         uses: azure/login@v1
@@ -79,6 +81,6 @@ jobs:
 
       - name: Run the application
         run: |
-          export CHROME_PATH=$(which chromium-browser || which google-chrome)
+          export CHROME_PATH=$(which chromium-browser || which google-chrome || echo $CHROMIUM_PATH)
           echo "CHROME_PATH=$CHROME_PATH"
           npm start

@@ -7,7 +7,7 @@ const scrapeProductPageKaspi = async (url, query) => {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: '/usr/bin/chromium-browser'
+    executablePath: process.env.CHROME_PATH,
   });
   const page = await browser.newPage();
 
@@ -53,7 +53,7 @@ const scrapeKaspi = async (query) => {
   const browser = await puppeteer.launch({
     headless: true,
     args: ['--no-sandbox', '--disable-setuid-sandbox'],
-    executablePath: '/usr/bin/chromium-browser'
+    executablePath: process.env.CHROME_PATH,
   });
   const page = await browser.newPage();
 
